@@ -11,6 +11,7 @@ export function getProduct(id) {
 export function saveProduct(product) {
   const body = { ...product };
   delete body._id;
+  delete body.__v;
 
   if (product._id) return http.put("/products/" + product._id, body);
 

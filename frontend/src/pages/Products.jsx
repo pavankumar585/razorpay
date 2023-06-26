@@ -6,7 +6,6 @@ import { getAllProducts, deleteProduct } from "../services/productService";
 import { useEffect, useState } from "react";
 import CustomSpinner from "../components/CustomSpinner";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
 
 function Products() {
   const [products, setProducts] = useState([]);
