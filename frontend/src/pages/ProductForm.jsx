@@ -35,6 +35,8 @@ function ProductForm() {
     } catch (error) {
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
+      if (error.response && error.response.status === 404)
+        toast.error(error.response.data.message);
     }
   };
 
@@ -44,7 +46,8 @@ function ProductForm() {
       await saveProduct(data);
       resetForm();
       setLoading(false);
-      toast.success("Product created successfully!");
+      if (data._id) toast.success("Product updated successfully!");
+      else toast.success("Product created successfully!");
     } catch (error) {
       console.log(error);
       setLoading(false);
