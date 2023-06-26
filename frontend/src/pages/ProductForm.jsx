@@ -13,6 +13,7 @@ function ProductForm() {
   const { Formik } = formik;
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
+  let setFormValues;
 
   const schema = yup.object().shape({
     name: yup.string().required().min(5).max(50).trim(),
@@ -30,6 +31,7 @@ function ProductForm() {
   const getData = async () => {
     try {
       const { data } = await getProduct(id);
+      setFormValues(data.data);
     } catch (error) {
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
@@ -55,7 +57,9 @@ function ProductForm() {
       onSubmit={handleSubmit}
       initialValues={{ name: "", description: "", imageUrl: "", price: "" }}
     >
-      {({ handleSubmit, handleChange, values, touched, errors, resetForm }) => {
+      {({ handleSubmit, handleChange, values, touched, errors, setValues }) => {
+        setFormValues = setValues;
+
         return (
           <Form noValidate onSubmit={handleSubmit}>
             <Row className="mb-3">
