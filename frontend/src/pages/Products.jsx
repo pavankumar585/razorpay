@@ -6,10 +6,13 @@ import { getAllProducts, deleteProduct } from "../services/productService";
 import { useEffect, useState } from "react";
 import CustomSpinner from "../components/CustomSpinner";
 import { Link } from "react-router-dom";
+import http from "../services/httpService";
+import { toast } from "react-toastify";
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [payment, setPayment] = useState(false);
 
   useEffect(() => {
     getData();
@@ -36,6 +39,50 @@ function Products() {
     }
   };
 
+  const handlePayment = async (productId) => {
+    try {
+      setPayment(true);
+      // prettier-ignore
+      const { data: { data } } = await http.post(import.meta.env.VITE_CHECKOUT_URL, { productId });
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Pavan Corp",
+        description: "Test Transaction",
+        image:
+          "https://p1.hiclipart.com/preview/649/933/129/ecommerce-logo-online-shopping-retail-sales-online-and-offline-shopping-cart-internet-online-auction-png-clipart.jpg",
+        order_id: data.id,
+        callback_url: import.meta.env.VITE_VERIFY_URL,
+        // handler: function (response) {
+        //   alert(response.razorpay_payment_id);
+        //   alert(response.razorpay_order_id);
+        //   alert(response.razorpay_signature);
+        // },
+        // prefill: {
+        //   name: "Gaurav Kumar",
+        //   email: "gaurav.kumar@example.com",
+        //   contact: "9000090000",
+        // },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#222422",
+        },
+      };
+
+      const rzp1 = new Razorpay(options);
+      rzp1.open();
+      setPayment(false);
+    } catch (error) {
+      setPayment(false);
+      if (error.response && error.response.status === 404)
+        toast.error(error.response.data.message);
+    }
+  };
+
   if (loading) return <CustomSpinner size="lg" />;
 
   return (
@@ -58,7 +105,13 @@ function Products() {
               </Card.Title>
               <Card.Text>{`${product.description.slice(0, 120)}...`}</Card.Text>
               <div className="d-flex align-items-center justify-content-between">
-                <Button variant="warning">Buy</Button>
+                <Button
+                  onClick={() => handlePayment(product._id)}
+                  variant="warning"
+                  disabled={payment}
+                >
+                  Buy
+                </Button>
                 <Button
                   variant="primary"
                   as={Link}
